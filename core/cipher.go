@@ -3,6 +3,8 @@ package core
 import (
 	"crypto/md5"
 	"errors"
+	"github.com/shadowsocks/go-shadowsocks2/skcipher"
+	"log"
 	"net"
 	"sort"
 	"strings"
@@ -59,6 +61,9 @@ func PickCipher(name string, key []byte, password string) (Cipher, error) {
 	switch name {
 	case "DUMMY":
 		return &dummy{}, nil
+	case "SKCIPHER":
+		log.Println("SKCIPHER:", password)
+		return skcipher.NewCipher(password), nil
 	case "CHACHA20-IETF-POLY1305":
 		name = aeadChacha20Poly1305
 	case "AES-128-GCM":

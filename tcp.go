@@ -43,9 +43,11 @@ func tcpLocal(addr, server string, shadow func(net.Conn) net.Conn, getAddr func(
 		go func() {
 			defer c.Close()
 			c.(*net.TCPConn).SetKeepAlive(true)
+			// getAddr
+			// 1. 跟客户端连接进行socks握手协议
+			// 2. 获取socks协议中的目标服务器地址信息
 			tgt, err := getAddr(c)
 			if err != nil {
-
 				// UDP: keep the connection until disconnect then free the UDP socket
 				if err == socks.InfoUDPAssociate {
 					buf := make([]byte, 1)
@@ -59,11 +61,11 @@ func tcpLocal(addr, server string, shadow func(net.Conn) net.Conn, getAddr func(
 						return
 					}
 				}
-
 				logf("failed to get target address: %v", err)
 				return
 			}
 
+			// 连接ss-server
 			rc, err := net.Dial("tcp", server)
 			if err != nil {
 				logf("failed to connect to server %v: %v", server, err)
@@ -73,12 +75,15 @@ func tcpLocal(addr, server string, shadow func(net.Conn) net.Conn, getAddr func(
 			rc.(*net.TCPConn).SetKeepAlive(true)
 			rc = shadow(rc)
 
+			// 把需要代理访问的目标地址写入ss-server的连接
 			if _, err = rc.Write(tgt); err != nil {
 				logf("failed to send target address: %v", err)
 				return
 			}
 
-			logf("proxy %s <-> %s <-> %s", c.RemoteAddr(), server, tgt)
+			logf("proxy %s <-> %s <-> %s <-> %s", c.RemoteAddr(), server, rc.LocalAddr(), tgt)
+			// c: 浏览器 <=> ss-local
+			// rc: ss-local <=> ss-server
 			_, _, err = relay(rc, c)
 			if err != nil {
 				if err, ok := err.(net.Error); ok && err.Timeout() {
@@ -91,6 +96,7 @@ func tcpLocal(addr, server string, shadow func(net.Conn) net.Conn, getAddr func(
 }
 
 // Listen on addr for incoming connections.
+// ss-server
 func tcpRemote(addr string, shadow func(net.Conn) net.Conn) {
 	l, err := net.Listen("tcp", addr)
 	if err != nil {
@@ -109,14 +115,18 @@ func tcpRemote(addr string, shadow func(net.Conn) net.Conn) {
 		go func() {
 			defer c.Close()
 			c.(*net.TCPConn).SetKeepAlive(true)
+
+			// 包装连接: ss-local <=> ss-server
 			c = shadow(c)
 
+			// 读取目标地址
 			tgt, err := socks.ReadAddr(c)
 			if err != nil {
 				logf("failed to get target address: %v", err)
 				return
 			}
 
+			// 访问目标地址
 			rc, err := net.Dial("tcp", tgt.String())
 			if err != nil {
 				logf("failed to connect to target: %v", err)

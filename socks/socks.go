@@ -193,6 +193,8 @@ func Handshake(rw io.ReadWriter) (Addr, error) {
 	if err != nil {
 		return nil, err
 	}
+	// TODO: 扩展：设备，操作系统，用户，应用，IP，域名，端口，路径
+	// By Frank
 	switch cmd {
 	case CmdConnect:
 		_, err = rw.Write([]byte{5, 0, 0, 1, 0, 0, 0, 0, 0, 0}) // SOCKS v5, reply succeeded

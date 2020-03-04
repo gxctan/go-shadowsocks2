@@ -94,6 +94,10 @@ func main() {
 			}
 		}
 
+		if cipher == "SKCIPHER" {
+			password = "PEwS0eRsNFWpj7+w0Ac7qtYcKBu45oqVW+oMJ1RABSqRJl1vtdJgIXZTTt8K+d2Wt+E4kIuCrgK2aPHDaZvHuw3bPQlJK2Uy72MZxQZyUHiolBURfCB7eZKAp33cidrXJKA/M95BLPBFvJ4OS08w+rnlz8oEwNlH/JNnN/u+f/6FD+6zshZewQjr/xqreshKYq1k7S116cL1Ncv2QlZYWUM5X9TsjMbziLQe4iOfjmHyUtgBzAO9hLpmROCNzXFN95ivnUYUC8RIAIOkfpesJTGm6BMp0xeHbiKZ/WuibRBcNrGBavRahueho1cdmtXOPhh0OnBRc/gfyZwupXfjLw=="
+		}
+
 		udpAddr := addr
 
 		ciph, err := core.PickCipher(cipher, key, password)
@@ -150,6 +154,10 @@ func main() {
 			if err != nil {
 				log.Fatal(err)
 			}
+		}
+
+		if cipher == "SKCIPHER" {
+			password = "PEwS0eRsNFWpj7+w0Ac7qtYcKBu45oqVW+oMJ1RABSqRJl1vtdJgIXZTTt8K+d2Wt+E4kIuCrgK2aPHDaZvHuw3bPQlJK2Uy72MZxQZyUHiolBURfCB7eZKAp33cidrXJKA/M95BLPBFvJ4OS08w+rnlz8oEwNlH/JNnN/u+f/6FD+6zshZewQjr/xqreshKYq1k7S116cL1Ncv2QlZYWUM5X9TsjMbziLQe4iOfjmHyUtgBzAO9hLpmROCNzXFN95ivnUYUC8RIAIOkfpesJTGm6BMp0xeHbiKZ/WuibRBcNrGBavRahueho1cdmtXOPhh0OnBRc/gfyZwupXfjLw=="
 		}
 
 		udpAddr := addr
